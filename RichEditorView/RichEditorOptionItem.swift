@@ -58,7 +58,6 @@ public enum RichEditorDefaultOption: RichEditorOption {
     case bold
     case italic
     case underline
-    case checkbox
     case `subscript`
     case superscript
     case strike
@@ -80,8 +79,7 @@ public enum RichEditorDefaultOption: RichEditorOption {
     public static let all: [RichEditorDefaultOption] = [
         //.clear,
         //.undo, .redo,
-        .bold, .italic, .underline,
-        .checkbox, .subscript, .superscript, .strike,
+        .bold, .italic, .underline, .subscript, .superscript, .strike,
         .textColor, .textBackgroundColor,
         .header(1), .header(2), .header(3), .header(4), .header(5), .header(6),
         .indent, outdent, orderedList, unorderedList,
@@ -98,7 +96,6 @@ public enum RichEditorDefaultOption: RichEditorOption {
         case .bold: name = "bold"
         case .italic: name = "italic"
         case .underline: name = "underline"
-        case .checkbox: name = "checkbox"
         case .subscript: name = "subscript"
         case .superscript: name = "superscript"
         case .strike: name = "strikethrough"
@@ -130,7 +127,6 @@ public enum RichEditorDefaultOption: RichEditorOption {
         case .bold: return NSLocalizedString("Bold", comment: "")
         case .italic: return NSLocalizedString("Italic", comment: "")
         case .underline: return NSLocalizedString("Underline", comment: "")
-        case .checkbox: return NSLocalizedString("Checkbox", comment: "")
         case .subscript: return NSLocalizedString("Sub", comment: "")
         case .superscript: return NSLocalizedString("Super", comment: "")
         case .strike: return NSLocalizedString("Strike", comment: "")
@@ -159,7 +155,6 @@ public enum RichEditorDefaultOption: RichEditorOption {
         case .bold: toolbar.editor?.bold()
         case .italic: toolbar.editor?.italic()
         case .underline: toolbar.editor?.underline()
-        case .checkbox: toolbar.editor?.checkbox()
         case .subscript: toolbar.editor?.subscriptText()
         case .superscript: toolbar.editor?.superscript()
         case .strike: toolbar.editor?.strikethrough()
