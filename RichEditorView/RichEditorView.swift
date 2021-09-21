@@ -153,14 +153,7 @@ public class RichEditorWebView: WKWebView {
         webView.scrollView.delegate = self
         webView.scrollView.clipsToBounds = false
         addSubview(webView)
-        
-        let documentFolders = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
-        if !documentFolders.isEmpty {
-            let documentsUrl = documentFolders[0]
-            /// BUG Fix: Access to local images
-            webView.loadFileURL(documentsUrl, allowingReadAccessTo: documentsUrl)
-        }
-        
+       
         if let filePath = Bundle(for: RichEditorView.self).path(forResource: "rich_editor", ofType: "html") {
             let url = URL(fileURLWithPath: filePath, isDirectory: false)
             webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
