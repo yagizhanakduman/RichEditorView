@@ -156,8 +156,7 @@ public class RichEditorWebView: WKWebView {
        
         if let filePath = Bundle(for: RichEditorView.self).path(forResource: "rich_editor", ofType: "html") {
             let url = URL(fileURLWithPath: filePath, isDirectory: false)
-            let docFolder = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)[0]
-            webView.loadFileURL(docFolder, allowingReadAccessTo: docFolder)
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
         }
         
         tapRecognizer.addTarget(self, action: #selector(viewWasTapped))
