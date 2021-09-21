@@ -154,8 +154,9 @@ public class RichEditorWebView: WKWebView {
         webView.scrollView.clipsToBounds = false
         addSubview(webView)
         
-        if let documentFolders = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask),
-           let documentsUrl = documentFolders[0] {
+        let documentFolders = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask)
+        if !documentFolders.isEmpty {
+            let documentsUrl = documentFolders[0]
             /// BUG Fix: Access to local images
             webView.loadFileURL(documentsUrl, allowingReadAccessTo: documentsUrl)
         }
