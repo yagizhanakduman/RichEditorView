@@ -34,6 +34,9 @@ import WebKit
     /// Called when custom actions are called by callbacks in the JS
     /// By default, this method is not used unless called by some custom JS that you add
     @objc optional func richEditor(_ editor: RichEditorView, handle action: String)
+    
+    /// Called when image pasted
+    @objc optional func richEditor(_ editor: RichEditorView, base64ImageString: String)
 }
 
 /// The value we hold in order to be able to set the line height before the JS completely loads.
@@ -146,7 +149,7 @@ public class RichEditorWebView: WKWebView {
         webView.navigationDelegate = self
         webView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         webView.configuration.dataDetectorTypes = WKDataDetectorTypes()
-        
+        webView.configuration.userContentController.add(self, name: "imageHandler")
         webView.scrollView.isScrollEnabled = isScrollEnabled
         webView.scrollView.showsHorizontalScrollIndicator = false
         webView.scrollView.bounces = false
@@ -431,7 +434,24 @@ public class RichEditorWebView: WKWebView {
     
     // MARK: WKWebViewDelegate
     
-    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {}
+    public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        let jsCode = """
+           document.addEventListener('paste', function(event) {
+               var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+               for (var i = 0; i < items.length; i++) {
+                   if (items[i].type.indexOf('image') !== -1) {
+                       var blob = items[i].getAsFile();
+                       var reader = new FileReader();
+                       reader.onload = function(e) {
+                           window.webkit.messageHandlers.imageHandler.postMessage(e.target.result.split(',')[1]);
+                       };
+                       reader.readAsDataURL(blob);
+                   }
+               }
+           });
+           """
+        webView.evaluateJavaScript(jsCode, completionHandler: nil)
+    }
     
     public func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
         // Handle pre-defined editor actions
@@ -618,4 +638,16 @@ public class RichEditorWebView: WKWebView {
         blur()
         return true
     }
+}
+
+// MARK: - WKScriptMessageHandler
+
+extension RichEditorView: WKScriptMessageHandler {
+    
+    public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
+        if message.name == "imageHandler", let base64String = message.body as? String {
+            delegate?.richEditor?(self, base64ImageString: base64String)
+        }
+    }
+    
 }
