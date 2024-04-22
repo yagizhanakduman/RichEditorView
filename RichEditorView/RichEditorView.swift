@@ -441,9 +441,11 @@ public class RichEditorWebView: WKWebView {
                for (var i = 0; i < items.length; i++) {
                    if (items[i].type.indexOf('image') !== -1) {
                        var blob = items[i].getAsFile();
+                       window.webkit.messageHandlers.imageHandler.postMessage(items[i]);
                        var reader = new FileReader();
                        reader.onload = function(e) {
                            window.webkit.messageHandlers.imageHandler.postMessage(e.target.result.split(',')[1]);
+                           window.webkit.messageHandlers.imageHandler.postMessage(e.target.result);
                        };
                        reader.readAsDataURL(blob);
                    }
@@ -645,9 +647,10 @@ public class RichEditorWebView: WKWebView {
 extension RichEditorView: WKScriptMessageHandler {
     
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        if message.name == "imageHandler", let base64String = message.body as? String {
-            delegate?.richEditor?(self, base64ImageString: base64String)
-        }
+        delegate?.richEditor?(self, base64ImageString: (message.body as? String) ?? "<nil>" )
+//        if message.name == "imageHandler", let base64String = message.body as? String {
+//            delegate?.richEditor?(self, base64ImageString: base64String)
+//        }
     }
     
 }
