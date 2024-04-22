@@ -436,22 +436,55 @@ public class RichEditorWebView: WKWebView {
     
     public func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         let jsCode = """
-           document.addEventListener('paste', function(event) {
-               var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-               for (var i = 0; i < items.length; i++) {
-                   if (items[i].type.indexOf('image') !== -1) {
-                       var blob = items[i].getAsFile();
-                       window.webkit.messageHandlers.imageHandler.postMessage(items[i]);
-                       var reader = new FileReader();
-                       reader.onload = function(e) {
-                           window.webkit.messageHandlers.imageHandler.postMessage(e.target.result.split(',')[1]);
-                           window.webkit.messageHandlers.imageHandler.postMessage(e.target.result);
-                       };
-                       reader.readAsDataURL(blob);
-                   }
-               }
-           });
-           """
+          document.addEventListener('paste', function(event) {
+              var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+              var pasteX = event.clientX;
+              var pasteY = event.clientY;
+
+              for (var i = 0; i < items.length; i++) {
+                  if (items[i].type.indexOf('image') !== -1) {
+                      var blob = items[i].getAsFile();
+                      var reader = new FileReader();
+                      reader.onload = function(e) {
+                          var base64Image = e.target.result;
+                          insertImageAtLocation(base64Image, pasteX, pasteY);
+                          event.preventDefault();
+                      };
+                      reader.readAsDataURL(blob);
+                  }
+              }
+          });
+
+          function insertImageAtLocation(base64Image, x, y) {
+              var elementAtPoint = document.elementFromPoint(x, y);
+              if (elementAtPoint) {
+                  var img = document.createElement('img');
+                  img.src = base64Image;
+                  var cid = \(UUID().uuidString);
+                  img.setAttribute('cid', cid);
+                  elementAtPoint.appendChild(img);
+              }
+          }
+          """
+        
+        
+//        let jsCode = """
+//           document.addEventListener('paste', function(event) {
+//               var items = (event.clipboardData || event.originalEvent.clipboardData).items;
+//               for (var i = 0; i < items.length; i++) {
+//                   if (items[i].type.indexOf('image') !== -1) {
+//                       var blob = items[i].getAsFile();
+//                       window.webkit.messageHandlers.imageHandler.postMessage(items[i]);
+//                       var reader = new FileReader();
+//                       reader.onload = function(e) {
+//                           window.webkit.messageHandlers.imageHandler.postMessage(e.target.result.split(',')[1]);
+//                           window.webkit.messageHandlers.imageHandler.postMessage(e.target.result);
+//                       };
+//                       reader.readAsDataURL(blob);
+//                   }
+//               }
+//           });
+//           """
         webView.evaluateJavaScript(jsCode, completionHandler: nil)
     }
     
