@@ -36,7 +36,7 @@ import WebKit
     @objc optional func richEditor(_ editor: RichEditorView, handle action: String)
     
     /// Called when image pasted
-    @objc optional func richEditor(_ editor: RichEditorView, base64ImageString: String)
+    @objc optional func richEditor(_ editor: RichEditorView, image: UIImage)
 }
 
 /// The value we hold in order to be able to set the line height before the JS completely loads.
@@ -152,6 +152,11 @@ public class RichEditorWebView: WKWebView {
         webView.configuration.userContentController.add(self, name: "imageHandler")
         webView.scrollView.isScrollEnabled = isScrollEnabled
         webView.scrollView.showsHorizontalScrollIndicator = false
+        if #available(iOS 16.4, *) {
+            webView.isInspectable = true
+        } else {
+            // Fallback on earlier versions
+        }
         webView.scrollView.bounces = false
         webView.scrollView.delegate = self
         webView.scrollView.clipsToBounds = false
@@ -441,11 +446,10 @@ public class RichEditorWebView: WKWebView {
                for (var i = 0; i < items.length; i++) {
                    if (items[i].type.indexOf('image') !== -1) {
                        var blob = items[i].getAsFile();
-                       window.webkit.messageHandlers.imageHandler.postMessage(items[i]);
                        var reader = new FileReader();
                        reader.onload = function(e) {
                            window.webkit.messageHandlers.imageHandler.postMessage(e.target.result.split(',')[1]);
-                           window.webkit.messageHandlers.imageHandler.postMessage(e.target.result);
+                           event.preventDefault();
                        };
                        reader.readAsDataURL(blob);
                    }
@@ -647,10 +651,12 @@ public class RichEditorWebView: WKWebView {
 extension RichEditorView: WKScriptMessageHandler {
     
     public func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage) {
-        delegate?.richEditor?(self, base64ImageString: (message.body as? String) ?? "<nil>" )
-//        if message.name == "imageHandler", let base64String = message.body as? String {
-//            delegate?.richEditor?(self, base64ImageString: base64String)
-//        }
+        debugPrint("message.name: \(message.name)")
+        if message.name == "imageHandler", let base64String = message.body as? String,
+           let imageData = Data(base64Encoded: base64String, options: .ignoreUnknownCharacters),
+           let image = UIImage(data: imageData) {
+            delegate?.richEditor?(self, image: image)
+        }
     }
     
 }
