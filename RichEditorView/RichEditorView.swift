@@ -447,9 +447,9 @@ public class RichEditorWebView: WKWebView {
                    if (items[i].type.indexOf('image') !== -1) {
                        var blob = items[i].getAsFile();
                        var reader = new FileReader();
+                       event.preventDefault();
                        reader.onload = function(e) {
                            window.webkit.messageHandlers.imageHandler.postMessage(e.target.result.split(',')[1]);
-                           event.preventDefault();
                        };
                        reader.readAsDataURL(blob);
                    }
