@@ -354,9 +354,11 @@ public class RichEditorWebView: WKWebView {
         runJS("RE.setJustifyRight()")
     }
     
-    public func insertImage(_ url: String, alt: String, cid: String) {
+    public func insertImage(_ url: String, alt: String, cid: String, maxWidth: Int? = nil, maxHeight: Int? = nil) {
         runJS("RE.prepareInsert()")
-        runJS("RE.insertImage('\(url.escaped)', '\(alt.escaped)', '\(cid.escaped)')")
+        let maxWidthUnwrapped = (maxWidth == nil) ? "null" : String(describing: maxWidth ?? 0)
+        let maxHeightUnwrapped = (maxHeight == nil) ? "null" : String(describing: maxHeight ?? 0)
+        runJS("RE.insertImage('\(url.escaped)', '\(alt.escaped)', '\(cid.escaped)', '\(maxWidthUnwrapped)', '\(maxHeightUnwrapped)')")
     }
     
     public func insertLink(href: String, text: String, title: String = "") {

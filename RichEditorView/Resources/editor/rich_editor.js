@@ -259,12 +259,34 @@ RE.setLineHeight = function(height) {
     RE.editor.style.lineHeight = height;
 };
 
-RE.insertImage = function(url, alt, cid) {
+RE.insertImage = function(url, alt, cid, maxWidth, maxHeight) {
     var img = document.createElement('img');
     img.setAttribute("src", url);
     img.setAttribute("alt", alt);
     img.setAttribute("cid", cid);
-    img.onload = RE.updateHeight;
+    if (maxWidth !== null && maxWidth !== undefined) {
+        img.style.maxWidth = maxWidth;
+    }
+    if (maxHeight !== null && maxHeight !== undefined) {
+        img.style.maxHeight = maxHeight;
+    }
+    
+    img.onload = function() {
+//        var aspectRatio = img.width / img.height;
+//        
+//        if (maxWidth && img.width > maxWidth) {
+//            img.width = maxWidth;
+//            img.height = maxWidth / aspectRatio;
+//        }
+//        if (maxHeight && img.height > maxHeight) {
+//            img.height = maxHeight;
+//            img.width = maxHeight * aspectRatio;
+//        }
+//        
+        img.style.objectFit = "contain";
+        
+        RE.updateHeight();
+    };
 
     RE.insertHTML(img.outerHTML);
     RE.callback("input");
