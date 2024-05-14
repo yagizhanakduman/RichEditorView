@@ -265,10 +265,10 @@ RE.insertImage = function(url, alt, cid, maxWidth, maxHeight) {
     img.setAttribute("alt", alt);
     img.setAttribute("cid", cid);
     if (maxWidth !== null && maxWidth !== undefined) {
-        img.style.maxWidth = maxWidth;
+        img.style.maxWidth = maxWidth + 'px';
     }
     if (maxHeight !== null && maxHeight !== undefined) {
-        img.style.maxHeight = maxHeight;
+        img.style.maxHeight = maxHeight + 'px';
     }
     
     img.onload = function() {
